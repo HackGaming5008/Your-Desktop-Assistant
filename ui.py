@@ -65,6 +65,7 @@ class ChatWindow(QWidget):
 
         send_btn = QPushButton("Send")
         send_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        send_btn.clicked.connect(self.send_msg)
 
         input_layout.addWidget(self.message_input)
         input_layout.addWidget(send_btn)
@@ -124,6 +125,10 @@ class ChatWindow(QWidget):
                 font-weight: bold;
             }
         """)
+
+    def send_msg(self):
+        self.chat_display.append(f"User: {self.message_input.text()}")
+        self.message_input.setText("")
 
 
 if __name__ == "__main__":

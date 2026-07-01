@@ -52,6 +52,10 @@ def ask_ai():
         
 
 
+class AiAssistant():
+    def __init__(self):
+        super().__init__()
+
 
 
 

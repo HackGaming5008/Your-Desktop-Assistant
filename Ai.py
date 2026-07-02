@@ -1,7 +1,6 @@
 import requests
 import json
 import os
-from ui import ChatWindow
 
 with open("systemPrompt.txt", "r", encoding="utf-8") as file:
     sysPrompt = file.read()
@@ -68,7 +67,7 @@ class AiAssistant():
 
 
 
-while True:
-    user = input("User: ")
-    assistant = AiAssistant()
-    print(assistant.ask_ai(user))
+# while True:
+#     user = input("User: ")
+#     assistant = AiAssistant()
+#     print(assistant.ask_ai(user))

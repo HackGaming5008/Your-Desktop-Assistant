@@ -4,8 +4,20 @@ from PyQt6.QtWidgets import (
     QTextEdit, QLineEdit, QPushButton, QListWidget,
     QLabel, QFrame
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from Ai import AiAssistant
 
+class AiWorker(QThread):
+    finished = pyqtSignal(str)
+
+    def __init__(self, assistant, message):
+        super().__init__()
+        self.assistant = assistant
+        self.message = message
+    
+    def run(self):
+        response = self.assistant.ask_ai(self.message)
+        self.finished.emit(response)
 
 class ChatWindow(QWidget):
     def __init__(self):
@@ -13,6 +25,7 @@ class ChatWindow(QWidget):
 
         self.setWindowTitle("Chat Application")
         self.resize(1000, 700)
+        self.assistant = AiAssistant()
 
         main_layout = QHBoxLayout(self)
 
@@ -63,12 +76,12 @@ class ChatWindow(QWidget):
         self.message_input = QLineEdit()
         self.message_input.setPlaceholderText("Type a message...")
 
-        send_btn = QPushButton("Send")
-        send_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        send_btn.clicked.connect(self.send_msg)
+        self.send_btn = QPushButton("Send")
+        self.send_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.send_btn.clicked.connect(self.send_msg)
 
         input_layout.addWidget(self.message_input)
-        input_layout.addWidget(send_btn)
+        input_layout.addWidget(self.send_btn)
 
         chat_layout.addWidget(header)
         chat_layout.addWidget(self.chat_display)
@@ -127,8 +140,22 @@ class ChatWindow(QWidget):
         """)
 
     def send_msg(self):
-        self.chat_display.append(f"User: {self.message_input.text()}")
-        self.message_input.setText("")
+        msg = self.message_input.text().strip()
+
+        if not msg:
+            return
+
+        self.chat_display.append(f"User: {msg}")
+        self.message_input.clear()
+        self.send_btn.setEnabled(False)
+
+        self.worker = AiWorker(self.assistant, msg)
+        self.worker.finished.connect(self.show_response)
+        self.worker.start()
+    
+    def show_response(self, response):
+        self.chat_display.append(f"Ai: {response}")
+        self.send_btn.setEnabled(True)
 
 
 if __name__ == "__main__":
